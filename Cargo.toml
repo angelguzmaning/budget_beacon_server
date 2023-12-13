@@ -10,3 +10,4 @@ actix-web = "4"
 dotenv = "0.15.0"
 serde = "1.0.193"
 sqlx = { version = "0.7", features = [ "postgres", "runtime-tokio", "macros" ] }
+tokio = "1.35.0"
