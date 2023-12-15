@@ -1,5 +1,5 @@
 use actix_web::{get, web::Data, App, HttpResponse, HttpServer, Responder};
-use routes::accounts::accounts_service;
+use routes::{accounts::accounts_service, transaction_records::records_service};
 use sqlx::postgres::PgPoolOptions;
 
 mod models;
@@ -26,6 +26,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(Data::new(pool.clone()))
             .service(health_check)
             .service(accounts_service())
+            .service(records_service())
     })
     .bind(("0.0.0.0", 3001))?
     .run()

@@ -29,6 +29,14 @@ Finally run the migrations
 sqlx migrate run
 ```
 
+## Create migrations
+
+To create a new migration, run the following command:
+
+```bash
+sqlx migrate add <name>
+```
+
 ## Starting the server
 
 For development, install `cargo-watch`

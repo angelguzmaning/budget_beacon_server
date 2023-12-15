@@ -65,10 +65,35 @@ async fn get_account_handler(pool: web::Data<PgPool>, path: web::Path<i32>) -> i
     }
 }
 
+#[get("/{id}/records/")]
+async fn get_records_by_account_id_handler(
+    pool: web::Data<PgPool>,
+    path: web::Path<i32>,
+) -> impl Responder {
+    let account_id = path.into_inner();
+    match get_by_id(&pool, account_id).await {
+        Ok(account) => {
+            let records = crate::models::record::get_by_account_id(&pool, account.id).await;
+            match records {
+                Ok(records) => HttpResponse::Ok().json(records),
+                Err(_) => HttpResponse::InternalServerError().finish(),
+            }
+        }
+        Err(err) => match err {
+            sqlx::Error::RowNotFound => HttpResponse::NotFound().json("Account not found"),
+            err => {
+                print!("{:?}", err);
+                HttpResponse::InternalServerError().finish()
+            }
+        },
+    }
+}
+
 pub fn accounts_service() -> Scope {
     web::scope("/accounts")
         .service(create_account_handler)
         .service(get_accounts_handler)
         .service(delete_account_handler)
         .service(get_account_handler)
+        .service(get_records_by_account_id_handler)
 }
