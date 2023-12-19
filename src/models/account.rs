@@ -30,13 +30,21 @@ pub async fn get_all(pool: &PgPool) -> Result<Vec<Account>, sqlx::Error> {
 }
 
 pub async fn delete_account(pool: &PgPool, account_id: i32) -> Result<Account, sqlx::Error> {
+    let mut tx = pool.begin().await?;
+
+    sqlx::query!("DELETE FROM records WHERE account_id = $1", account_id)
+        .execute(&mut *tx)
+        .await?;
+
     let account = sqlx::query_as!(
         Account,
         "DELETE FROM accounts WHERE id = $1 RETURNING id, name, balance, initial_balance",
         account_id
     )
-    .fetch_one(pool)
+    .fetch_one(&mut *tx)
     .await?;
+
+    tx.commit().await?;
 
     Ok(account)
 }

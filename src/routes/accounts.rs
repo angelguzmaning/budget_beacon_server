@@ -35,7 +35,7 @@ async fn get_accounts_handler(pool: web::Data<PgPool>) -> impl Responder {
     }
 }
 
-#[delete("/{id}")]
+#[delete("/{id}/")]
 async fn delete_account_handler(pool: web::Data<PgPool>, path: web::Path<i32>) -> impl Responder {
     let account_id = path.into_inner();
 
@@ -51,7 +51,7 @@ async fn delete_account_handler(pool: web::Data<PgPool>, path: web::Path<i32>) -
     }
 }
 
-#[get("/{id}")]
+#[get("/{id}/")]
 async fn get_account_handler(pool: web::Data<PgPool>, path: web::Path<i32>) -> impl Responder {
     match get_by_id(&pool, path.into_inner()).await {
         Ok(account) => HttpResponse::Ok().json(account),
