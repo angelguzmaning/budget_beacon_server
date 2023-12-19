@@ -56,3 +56,21 @@ pub async fn get_by_account_id(pool: &PgPool, account_id: i32) -> Result<Vec<Rec
 
     Ok(records)
 }
+
+pub async fn delete_record(pool: &PgPool, record_id: i32) -> Result<Record, sqlx::Error> {
+    let mut tx = pool.begin().await?;
+
+    let record = sqlx::query_as!(
+        Record,
+        "DELETE FROM records WHERE id = $1 RETURNING id, date, description, amount, account_id",
+        record_id
+    )
+    .fetch_one(&mut *tx)
+    .await?;
+
+    add_to_balance(&mut *tx, record.account_id, -record.amount).await?;
+
+    tx.commit().await?;
+
+    Ok(record)
+}
